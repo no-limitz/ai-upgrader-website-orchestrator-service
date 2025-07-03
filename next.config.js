@@ -48,12 +48,14 @@ const nextConfig = {
     unoptimized: true, // For POC simplicity
   },
   
-  // Output configuration for Docker
-  output: 'standalone',
+  // Output configuration - disable standalone for now
+  // output: 'standalone',
   
   // Ensure static files are properly served
   trailingSlash: false,
-  assetPrefix: process.env.NODE_ENV === 'production' ? '' : '',
+  compress: true,
+  generateEtags: false,
+  poweredByHeader: false,
   
   // Flexible port configuration for deployment platforms like Coolify
   experimental: {

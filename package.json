@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "NODE_ENV=production node start.js",
-    "start:next": "next start",
+    "start": "next start -p ${PORT:-3000} -H 0.0.0.0",
+    "start:custom": "NODE_ENV=production node start.js",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "test": "jest",

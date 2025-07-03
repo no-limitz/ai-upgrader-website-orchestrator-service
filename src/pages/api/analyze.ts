@@ -10,9 +10,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import axios, { AxiosError } from 'axios';
 
-// Environment variables - Force localhost for development
-const ANALYZER_SERVICE_URL = 'http://127.0.0.1:8001';
-const BUILDER_SERVICE_URL = 'http://127.0.0.1:8002';
+// Environment variables - configurable service URLs
+const ANALYZER_SERVICE_URL = process.env.ANALYZER_SERVICE_URL || 'http://127.0.0.1:8001';
+const BUILDER_SERVICE_URL = process.env.BUILDER_SERVICE_URL || 'http://127.0.0.1:8002';
 
 interface AnalyzeRequest {
   url: string;

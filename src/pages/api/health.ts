@@ -10,8 +10,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
 
-const ANALYZER_SERVICE_URL = 'http://127.0.0.1:8001';
-const BUILDER_SERVICE_URL = 'http://127.0.0.1:8002';
+const ANALYZER_SERVICE_URL = process.env.ANALYZER_SERVICE_URL || 'http://127.0.0.1:8001';
+const BUILDER_SERVICE_URL = process.env.BUILDER_SERVICE_URL || 'http://127.0.0.1:8002';
 
 interface HealthStatus {
   status: 'healthy' | 'degraded' | 'unhealthy';
@@ -133,9 +133,8 @@ export default async function handler(
     }
   };
 
-  // Set appropriate HTTP status code
-  const httpStatus = overallStatus === 'healthy' ? 200 : 
-                    overallStatus === 'degraded' ? 200 : 503;
-
-  res.status(httpStatus).json(healthStatus);
+  // Always return 200 for orchestrator health check
+  // The orchestrator itself is healthy if it can respond to requests
+  // Backend service availability is informational only
+  res.status(200).json(healthStatus);
 }

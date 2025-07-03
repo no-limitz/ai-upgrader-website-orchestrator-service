@@ -32,6 +32,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
+# Ensure correct file structure for Next.js standalone
+RUN chown -R nextjs:nodejs /app/.next
+
 USER nextjs
 
 # Expose port (default 3000)
@@ -44,4 +47,9 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
 # Start the application
 ENV NODE_ENV=production
 ENV HOSTNAME="0.0.0.0"
+ENV PORT=3000
+
+# Disable Next.js telemetry
+ENV NEXT_TELEMETRY_DISABLED=1
+
 CMD ["node", "server.js"]

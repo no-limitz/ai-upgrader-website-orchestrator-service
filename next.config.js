@@ -22,7 +22,7 @@ const nextConfig = {
     ];
   },
   
-  // CORS headers for development
+  // Headers for proper static asset serving and CORS
   async headers() {
     return [
       {
@@ -31,6 +31,12 @@ const nextConfig = {
           { key: 'Access-Control-Allow-Origin', value: '*' },
           { key: 'Access-Control-Allow-Methods', value: 'GET, POST, PUT, DELETE, OPTIONS' },
           { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization' },
+        ],
+      },
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
         ],
       },
     ];
@@ -43,7 +49,11 @@ const nextConfig = {
   },
   
   // Output configuration for Docker
-  output: process.env.NODE_ENV === 'production' ? 'standalone' : undefined,
+  output: 'standalone',
+  
+  // Ensure static files are properly served
+  trailingSlash: false,
+  assetPrefix: process.env.NODE_ENV === 'production' ? '' : '',
   
   // Flexible port configuration for deployment platforms like Coolify
   experimental: {

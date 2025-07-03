@@ -27,13 +27,16 @@ FROM base AS runner
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy built application
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Copy all necessary files for production
+COPY --from=builder --chown=nextjs:nodejs /app/package*.json ./
+COPY --from=builder --chown=nextjs:nodejs /app/start.js ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/next.config.js ./
+COPY --from=builder --chown=nextjs:nodejs /app/src ./src
 
-# Ensure correct file structure for Next.js standalone
-RUN chown -R nextjs:nodejs /app/.next
+# Install production dependencies only
+RUN npm ci --only=production
 
 USER nextjs
 
@@ -52,4 +55,4 @@ ENV PORT=3000
 # Disable Next.js telemetry
 ENV NEXT_TELEMETRY_DISABLED=1
 
-CMD ["node", "server.js"]
+CMD ["npm", "start"]

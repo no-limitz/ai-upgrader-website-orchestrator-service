@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "NODE_ENV=production node start.js",
+    "start:next": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "test": "jest",

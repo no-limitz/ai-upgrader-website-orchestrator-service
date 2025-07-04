@@ -92,7 +92,7 @@ export default async function handler(
       url,
       include_seo = true,
       max_pages = 3,
-      generate_homepage = true,
+      generate_homepage = false,
       style_preference = 'modern',
       include_booking = false
     }: AnalyzeRequest = req.body;

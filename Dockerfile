@@ -49,5 +49,5 @@ EXPOSE 3000
 ENV PORT 3000
 ENV HOSTNAME "0.0.0.0"
 
-# Run Next.js
-CMD ["node_modules/.bin/next", "start"]
+# Run Next.js with npm start which includes proper host binding
+CMD ["npm", "start"]

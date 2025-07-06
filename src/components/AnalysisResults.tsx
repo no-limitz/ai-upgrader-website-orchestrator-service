@@ -16,7 +16,6 @@ import {
   Building2, 
   Globe, 
   Code, 
-  Download,
   ExternalLink,
   ChevronDown,
   ChevronRight,
@@ -137,30 +136,6 @@ export default function AnalysisResults({ result }: AnalysisResultsProps) {
     return 'text-green-600 bg-green-50';
   };
 
-  const downloadHomepage = () => {
-    if (!homepage) return;
-    
-    const htmlContent = `<!DOCTYPE html>
-${homepage.html_code}
-
-<style>
-${homepage.css_code}
-</style>
-
-${homepage.js_code ? `<script>
-${homepage.js_code}
-</script>` : ''}`;
-
-    const blob = new Blob([htmlContent], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${homepage.business_name.toLowerCase().replace(/\s+/g, '-')}-homepage.html`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
 
   const openScreenshotInNewTab = () => {
     if (!homepage) return;
@@ -598,31 +573,51 @@ ${homepage.js_code}
               {/* Homepage Info */}
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-900">Generated Homepage</h3>
+                  <h3 className="text-xl font-semibold text-gray-900">Your New Homepage Design</h3>
                   <p className="text-gray-600">
-                    Created in {Math.round(homepage.generation_time / 1000)}s • Style: {homepage.style_applied}
-                    {homepage.screenshot ? ' • Screenshot available' : ' • Preview mockup available'}
+                    AI-generated design • Style: {homepage.style_applied} • Created in {Math.round(homepage.generation_time / 1000)}s
                   </p>
                 </div>
-                <div className="flex space-x-3">
-                  <button
+                <button
+                  onClick={openScreenshotInNewTab}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                    homepage.screenshot 
+                      ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                      : 'bg-amber-600 hover:bg-amber-700 text-white'
+                  }`}
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  <span>Open Full Size</span>
+                </button>
+              </div>
+
+              {/* Screenshot Display */}
+              <div className="border border-gray-200 rounded-lg overflow-hidden bg-gray-50">
+                <div className="bg-white p-3 border-b border-gray-200 flex items-center space-x-2">
+                  <div className="flex space-x-1">
+                    <div className="w-3 h-3 bg-red-400 rounded-full"></div>
+                    <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                    <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                  </div>
+                  <div className="flex-1 bg-gray-100 rounded px-3 py-1 text-sm text-gray-600 text-center font-mono">
+                    {homepage.business_name.toLowerCase().replace(/\s+/g, '')}.com
+                  </div>
+                </div>
+                <div className="p-4">
+                  <img 
+                    src={homepage.screenshot || createPlaceholderImage(homepage.business_name)}
+                    alt={`Generated homepage for ${homepage.business_name}`}
+                    className="w-full border border-gray-200 rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-shadow"
                     onClick={openScreenshotInNewTab}
-                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
-                      homepage.screenshot 
-                        ? 'bg-green-600 hover:bg-green-700 text-white'
-                        : 'bg-amber-600 hover:bg-amber-700 text-white'
-                    }`}
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    <span>{homepage.screenshot ? 'View Screenshot' : 'View Preview'}</span>
-                  </button>
-                  <button
-                    onClick={downloadHomepage}
-                    className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
-                  >
-                    <Download className="w-4 h-4" />
-                    <span>Download HTML</span>
-                  </button>
+                  />
+                  {!homepage.screenshot && (
+                    <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                      <p className="text-amber-800 text-sm flex items-center space-x-2">
+                        <span>📷</span>
+                        <span>Live screenshot unavailable - showing design preview mockup</span>
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -633,7 +628,7 @@ ${homepage.js_code}
                   {homepage.features_included.map((feature, index) => (
                     <span
                       key={index}
-                      className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-md"
+                      className="inline-block bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full font-medium"
                     >
                       {feature.replace(/_/g, ' ')}
                     </span>
@@ -642,38 +637,39 @@ ${homepage.js_code}
               </div>
 
               {/* Improvement Description */}
-              <div className="p-4 bg-blue-50 rounded-lg">
-                <h4 className="font-medium text-blue-900 mb-2">Estimated Improvement</h4>
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h4 className="font-medium text-blue-900 mb-2">Why This Design Works Better</h4>
                 <p className="text-blue-800 text-sm">{homepage.estimated_improvement}</p>
               </div>
 
-              {/* Code Preview */}
-              <div>
-                <h4 className="font-medium text-gray-900 mb-3">Code Preview</h4>
-                <div className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto">
-                  <pre className="text-sm">
-                    <code>{homepage.html_code.substring(0, 500)}...</code>
-                  </pre>
-                </div>
-                <p className="text-xs text-gray-500 mt-2">
-                  Full code: {homepage.html_code.length} characters HTML, {homepage.css_code.length} characters CSS
-                </p>
-              </div>
-
               {/* Homepage CTA */}
-              <div className="mt-8 bg-green-50 border border-green-200 rounded-lg p-6">
+              <div className="mt-8 bg-gradient-to-r from-green-500 to-blue-600 rounded-lg p-6 text-white">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="font-semibold text-gray-900 mb-1">Love This Design?</h4>
-                    <p className="text-gray-600 text-sm">
-                      Get a custom website built by our team with your branding, content, and functionality
+                    <h4 className="font-semibold mb-2">Ready to Make This Your Real Website?</h4>
+                    <p className="text-green-50 text-sm">
+                      Get a fully functional website built with your branding, content, and custom features
                     </p>
+                    <div className="flex items-center space-x-4 mt-3 text-sm">
+                      <div className="flex items-center space-x-1">
+                        <Clock className="w-4 h-4" />
+                        <span>7-Day Delivery</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <CheckCircle className="w-4 h-4" />
+                        <span>Mobile Responsive</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <Star className="w-4 h-4" />
+                        <span>Professional Design</span>
+                      </div>
+                    </div>
                   </div>
                   <button
                     onClick={() => setActiveTab('upgrade')}
-                    className="bg-green-500 hover:bg-green-600 text-white font-semibold px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
+                    className="bg-white text-green-600 hover:bg-green-50 font-semibold px-6 py-3 rounded-lg transition-colors whitespace-nowrap"
                   >
-                    Build My Website
+                    Get Quote →
                   </button>
                 </div>
               </div>

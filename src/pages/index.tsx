@@ -81,7 +81,7 @@ export default function Home() {
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [currentStep, setCurrentStep] = useState('');
 
-  const handleAnalyze = async (url: string) => {
+  const handleAnalyze = async (url: string, options?: any) => {
     setIsAnalyzing(true);
     setAnalysisResult(null);
     setAnalysisProgress(0);
@@ -114,7 +114,7 @@ export default function Home() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ url, ...options }),
       });
 
       clearInterval(progressInterval);

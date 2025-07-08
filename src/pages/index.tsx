@@ -11,6 +11,7 @@ import {
   ExternalLink,
   ArrowRight
 } from 'lucide-react';
+import Link from 'next/link';
 
 import AnalysisForm from '../components/AnalysisForm';
 import AnalysisResults from '../components/AnalysisResults';
@@ -80,6 +81,7 @@ export default function Home() {
   } | null>(null);
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [currentStep, setCurrentStep] = useState('');
+  const [isGeneratingHomepage, setIsGeneratingHomepage] = useState(false);
 
   const handleAnalyze = async (url: string, options?: any) => {
     setIsAnalyzing(true);
@@ -90,11 +92,11 @@ export default function Home() {
     try {
       // Simulate progress updates
       const progressSteps = [
-        { progress: 10, step: 'Crawling website content...' },
-        { progress: 30, step: 'Extracting business information...' },
-        { progress: 50, step: 'Analyzing with AI...' },
-        { progress: 70, step: 'Identifying issues...' },
-        { progress: 90, step: 'Generating recommendations...' },
+        { progress: 10, step: 'Looking at your website...' },
+        { progress: 30, step: 'Understanding your business...' },
+        { progress: 50, step: 'Finding improvement opportunities...' },
+        { progress: 70, step: 'Calculating your squared potential...' },
+        { progress: 90, step: 'Preparing your results...' },
       ];
 
       // Start progress simulation
@@ -130,11 +132,21 @@ export default function Home() {
         throw new Error(data.error?.message || 'Analysis failed');
       }
 
+      // Show analysis results immediately
       setAnalysisProgress(100);
       setCurrentStep('Analysis complete!');
       setAnalysisResult(data.data);
       
-      toast.success('Website analysis completed successfully!');
+      // If homepage generation is needed and analysis was successful
+      if (options?.generate_homepage && data.data?.analysis?.business_info?.name) {
+        setIsGeneratingHomepage(true);
+        toast.success('Analysis complete! Building your new homepage...');
+        
+        // Generate homepage in the background
+        generateHomepageInBackground(data.data.workflow_id);
+      } else {
+        toast.success('Your website has been squared! 🚀');
+      }
 
     } catch (error) {
       console.error('Analysis error:', error);
@@ -146,17 +158,70 @@ export default function Home() {
     }
   };
 
+  const generateHomepageInBackground = async (workflowId: string) => {
+    try {
+      // Simulate homepage generation delay
+      setTimeout(async () => {
+        try {
+          // Make a real API call to generate homepage
+          const response = await fetch('/api/generate-homepage', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+              workflow_id: workflowId,
+              analysis: analysisResult?.analysis 
+            }),
+          });
+          
+          const data = await response.json();
+          
+          if (data.success && data.homepage) {
+            setIsGeneratingHomepage(false);
+            
+            // Update the result with the homepage
+            setAnalysisResult(prev => {
+              if (prev) {
+                return {
+                  ...prev,
+                  homepage: data.homepage
+                };
+              }
+              return prev;
+            });
+            
+            toast.success('Your new homepage is ready! 🎨', {
+              duration: 5000,
+            });
+          } else {
+            throw new Error(data.error?.message || 'Homepage generation failed');
+          }
+        } catch (error) {
+          console.error('Homepage generation error:', error);
+          setIsGeneratingHomepage(false);
+          toast.error('Homepage generation failed. Please try again.');
+        }
+      }, 2000); // Start generation after 2 seconds
+      
+    } catch (error) {
+      console.error('Homepage generation error:', error);
+      setIsGeneratingHomepage(false);
+    }
+  };
+
   const handleReset = () => {
     setAnalysisResult(null);
     setAnalysisProgress(0);
     setCurrentStep('');
+    setIsGeneratingHomepage(false);
   };
 
   return (
     <>
       <Head>
-        <title>AI Web Upgrader - POC</title>
-        <meta name="description" content="Transform your website with AI-powered analysis and recommendations" />
+        <title>DX² - Digital Experience Squared</title>
+        <meta name="description" content="We don't just improve your website. We square it." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -166,26 +231,35 @@ export default function Home() {
         <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-4">
-              <div className="flex items-center space-x-3">
+              <Link href="/" className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                   <Zap className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold text-gray-900">AI Web Upgrader</h1>
-                  <p className="text-sm text-gray-500">POC Demo</p>
+                  <h1 className="text-xl font-bold text-gray-900">DX²</h1>
+                  <p className="text-sm text-gray-500">Digital Experience Squared</p>
                 </div>
-              </div>
+              </Link>
               
-              <div className="flex items-center space-x-4">
-                <div className="hidden sm:flex items-center space-x-2 text-sm text-gray-600">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  <span>AI-Powered Analysis</span>
+              <nav className="hidden md:flex items-center space-x-6">
+                <span className="text-blue-600 font-medium">Home</span>
+                <Link href="/about" className="text-gray-600 hover:text-gray-900 transition-colors">
+                  About
+                </Link>
+                <Link href="/pricing" className="text-gray-600 hover:text-gray-900 transition-colors">
+                  Pricing
+                </Link>
+                <div className="hidden lg:flex items-center space-x-4 ml-6">
+                  <div className="flex items-center space-x-2 text-sm text-gray-600">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span>Results in 30 seconds</span>
+                  </div>
+                  <div className="flex items-center space-x-2 text-sm text-gray-600">
+                    <TrendingUp className="w-4 h-4 text-blue-500" />
+                    <span>Exponential Growth</span>
+                  </div>
                 </div>
-                <div className="hidden sm:flex items-center space-x-2 text-sm text-gray-600">
-                  <TrendingUp className="w-4 h-4 text-blue-500" />
-                  <span>Instant Recommendations</span>
-                </div>
-              </div>
+              </nav>
             </div>
           </div>
         </header>
@@ -197,18 +271,18 @@ export default function Home() {
               <div className="text-center mb-12">
                 <div className="inline-flex items-center space-x-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
                   <Globe className="w-4 h-4" />
-                  <span>Proof of Concept Demo</span>
+                  <span>Free Website Analysis • No Credit Card Required</span>
                 </div>
                 
                 <h1 className="responsive-title font-bold text-gray-900 mb-6">
-                  Transform Your Website with{' '}
-                  <span className="gradient-text">AI-Powered Analysis</span>
+                  We Don't Just Improve Your Website.{' '}
+                  <span className="gradient-text">We Square It.</span>
                 </h1>
                 
                 <p className="responsive-subtitle text-gray-600 mb-8 max-w-3xl mx-auto">
-                  Get instant AI-powered insights about your website's performance, 
-                  identify critical issues, and receive actionable recommendations 
-                  to improve your online presence.
+                  Small changes, exponential results. Discover how tiny improvements 
+                  compound into massive business growth. Get your free analysis in 
+                  30 seconds and see your website's squared potential.
                 </p>
 
                 <div className="grid md:grid-cols-3 gap-6 mb-12">
@@ -216,25 +290,81 @@ export default function Home() {
                     <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                       <Globe className="w-6 h-6 text-blue-600" />
                     </div>
-                    <h3 className="font-semibold text-gray-900 mb-2">Smart Crawling</h3>
-                    <p className="text-gray-600 text-sm">Advanced AI analyzes your website content and structure</p>
+                    <h3 className="font-semibold text-gray-900 mb-2">Smart Analysis</h3>
+                    <p className="text-gray-600 text-sm">We examine every detail of your website</p>
                   </div>
                   
                   <div className="card-hover text-center">
                     <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                       <TrendingUp className="w-6 h-6 text-purple-600" />
                     </div>
-                    <h3 className="font-semibold text-gray-900 mb-2">Business Intelligence</h3>
-                    <p className="text-gray-600 text-sm">Identifies your business type and target market automatically</p>
+                    <h3 className="font-semibold text-gray-900 mb-2">Squared Impact</h3>
+                    <p className="text-gray-600 text-sm">2% improvements = 10x business results</p>
                   </div>
                   
                   <div className="card-hover text-center">
                     <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                       <CheckCircle className="w-6 h-6 text-green-600" />
                     </div>
-                    <h3 className="font-semibold text-gray-900 mb-2">Actionable Insights</h3>
-                    <p className="text-gray-600 text-sm">Receive specific recommendations with cost estimates</p>
+                    <h3 className="font-semibold text-gray-900 mb-2">Clear Next Steps</h3>
+                    <p className="text-gray-600 text-sm">Know exactly what to fix and why it matters</p>
                   </div>
+                </div>
+              </div>
+
+              {/* Value Proposition Section */}
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 mb-8 border border-blue-100">
+                <div className="max-w-3xl mx-auto text-center">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                    Why DX² Instead of DIY?
+                  </h2>
+                  <div className="grid md:grid-cols-2 gap-6 mb-6">
+                    <div className="text-left">
+                      <h3 className="font-semibold text-gray-900 mb-2">DIY Builders (Wix, Squarespace)</h3>
+                      <ul className="space-y-2 text-sm text-gray-600">
+                        <li className="flex items-start">
+                          <span className="text-red-500 mr-2">✗</span>
+                          <span>40-80 hours of your time</span>
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-red-500 mr-2">✗</span>
+                          <span>Still looks like a template</span>
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-red-500 mr-2">✗</span>
+                          <span>You're the designer, developer, and copywriter</span>
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-red-500 mr-2">✗</span>
+                          <span>Months to see results</span>
+                        </li>
+                      </ul>
+                    </div>
+                    <div className="text-left">
+                      <h3 className="font-semibold text-gray-900 mb-2">DX² Done-For-You</h3>
+                      <ul className="space-y-2 text-sm text-gray-600">
+                        <li className="flex items-start">
+                          <span className="text-green-500 mr-2">✓</span>
+                          <span>Live in 3-5 business days</span>
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-green-500 mr-2">✓</span>
+                          <span>Custom design for YOUR business</span>
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-green-500 mr-2">✓</span>
+                          <span>Real humans + AI working together</span>
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-green-500 mr-2">✓</span>
+                          <span>Exponential results, guaranteed</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  <p className="text-lg font-medium text-blue-900">
+                    Your time is worth $100+/hour. Why spend 80 hours when we can square your site in days?
+                  </p>
                 </div>
               </div>
 
@@ -264,44 +394,6 @@ export default function Home() {
                 )}
               </div>
 
-              {/* Demo Info */}
-              <div className="mt-8 p-6 bg-yellow-50 border border-yellow-200 rounded-xl">
-                <div className="flex items-start space-x-3">
-                  <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5" />
-                  <div>
-                    <h4 className="font-medium text-yellow-900 mb-1">POC Demo Information</h4>
-                    <p className="text-sm text-yellow-800 mb-3">
-                      This is a proof-of-concept demonstration. For testing, try these sample websites:
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      <button 
-                        onClick={() => handleAnalyze('https://example.com')}
-                        className="inline-flex items-center space-x-1 text-sm bg-yellow-100 hover:bg-yellow-200 text-yellow-800 px-3 py-1 rounded-md transition-colors"
-                        disabled={isAnalyzing}
-                      >
-                        <span>example.com</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </button>
-                      <button 
-                        onClick={() => handleAnalyze('https://www.weatherfordschoolhouse.com')}
-                        className="inline-flex items-center space-x-1 text-sm bg-yellow-100 hover:bg-yellow-200 text-yellow-800 px-3 py-1 rounded-md transition-colors"
-                        disabled={isAnalyzing}
-                      >
-                        <span>weatherfordschoolhouse.com</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </button>
-                      <button 
-                        onClick={() => handleAnalyze('https://nolimitz.io')}
-                        className="inline-flex items-center space-x-1 text-sm bg-yellow-100 hover:bg-yellow-200 text-yellow-800 px-3 py-1 rounded-md transition-colors"
-                        disabled={isAnalyzing}
-                      >
-                        <span>nolimitz.io</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           ) : (
             <div className="space-y-8">
@@ -325,7 +417,10 @@ export default function Home() {
               </div>
 
               {/* Analysis Results */}
-              <AnalysisResults result={analysisResult} />
+              <AnalysisResults 
+                result={analysisResult} 
+                isGeneratingHomepage={isGeneratingHomepage}
+              />
             </div>
           )}
         </main>
@@ -335,10 +430,10 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="text-center">
               <p className="text-gray-600 mb-2">
-                AI Web Upgrader - Proof of Concept Demo
+                DX² - Digital Experience Squared
               </p>
               <p className="text-sm text-gray-500">
-                Powered by OpenAI GPT • Built with Next.js and Tailwind CSS
+                © 2025 DX² • Small changes. Exponential results.
               </p>
             </div>
           </div>

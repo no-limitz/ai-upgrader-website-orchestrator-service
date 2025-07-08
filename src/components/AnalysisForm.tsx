@@ -118,7 +118,7 @@ export default function AnalysisForm({ onAnalyze, isLoading }: AnalysisFormProps
               disabled={isLoading}
             />
             <label htmlFor="include_seo" className="text-sm text-gray-700">
-              Include SEO analysis
+              Include search engine visibility check
             </label>
           </div>
 
@@ -215,7 +215,7 @@ export default function AnalysisForm({ onAnalyze, isLoading }: AnalysisFormProps
         ) : (
           <>
             <Search className="w-5 h-5" />
-            <span>Analyze Website</span>
+            <span>Check My Website</span>
           </>
         )}
       </button>
@@ -234,11 +234,19 @@ export default function AnalysisForm({ onAnalyze, isLoading }: AnalysisFormProps
           </button>
           <button
             type="button"
-            onClick={() => setUrl('https://httpbin.org')}
+            onClick={() => setUrl('https://www.weatherfordschoolhouse.com')}
             className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-md transition-colors"
             disabled={isLoading}
           >
-            httpbin.org
+            weatherfordschoolhouse.com
+          </button>
+          <button
+            type="button"
+            onClick={() => setUrl('https://nolimitz.io')}
+            className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-md transition-colors"
+            disabled={isLoading}
+          >
+            nolimitz.io
           </button>
         </div>
       </div>

@@ -92,7 +92,7 @@ export default async function handler(
       url,
       include_seo = true,
       max_pages = 3,
-      generate_homepage = false,
+      generate_homepage = true,
       style_preference = 'modern',
       include_booking = false
     }: AnalyzeRequest = req.body;
@@ -123,6 +123,8 @@ export default async function handler(
     }
 
     console.log(`🚀 Starting workflow ${workflowId} for URL: ${url}`);
+    console.log(`📥 Request body:`, JSON.stringify(req.body, null, 2));
+    console.log(`⚙️  Settings: generate_homepage=${generate_homepage}, include_seo=${include_seo}, max_pages=${max_pages}`);
 
     // Step 1: Analyze website with analyzer service
     console.log(`📊 Step 1: Analyzing website...`);
@@ -188,6 +190,7 @@ export default async function handler(
     let homepageResult: HomepageResult | undefined;
     
     console.log(`🔍 Debug: generate_homepage=${generate_homepage}, business_name="${analysisResult.business_info?.name}"`);
+    console.log(`🔗 Service URLs: ANALYZER=${ANALYZER_SERVICE_URL}, BUILDER=${BUILDER_SERVICE_URL}`);
     
     if (generate_homepage && analysisResult.business_info?.name) {
       console.log(`🏗️ Step 2: Generating homepage...`);

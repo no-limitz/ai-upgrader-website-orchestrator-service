@@ -9,6 +9,7 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 import axios, { AxiosError } from 'axios';
+import { withAuth } from '../../middleware/auth';
 
 // Environment variables - configurable service URLs
 const ANALYZER_SERVICE_URL = process.env.ANALYZER_SERVICE_URL || 'http://127.0.0.1:8001';
@@ -67,7 +68,7 @@ interface OrchestratorResponse {
   timestamp: string;
 }
 
-export default async function handler(
+async function analyzeHandler(
   req: NextApiRequest,
   res: NextApiResponse<OrchestratorResponse>
 ) {
@@ -141,7 +142,8 @@ export default async function handler(
         {
           timeout: 120000, // 2 minutes timeout
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.SERVICE_AUTH_TOKEN}`
           }
         }
       );
@@ -208,7 +210,8 @@ export default async function handler(
           {
             timeout: 60000, // 1 minute timeout
             headers: {
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${process.env.SERVICE_AUTH_TOKEN}`
             }
           }
         );
@@ -245,7 +248,8 @@ export default async function handler(
             {
               timeout: 30000, // 30 seconds timeout for screenshot
               headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${process.env.SERVICE_AUTH_TOKEN}`
               }
             }
           );
@@ -320,3 +324,6 @@ export default async function handler(
     });
   }
 }
+
+// Export the handler wrapped with authentication
+export default withAuth(analyzeHandler);
